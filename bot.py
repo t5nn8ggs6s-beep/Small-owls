@@ -1,12 +1,10 @@
 import asyncio
-import os
 from aiogram import Bot, Dispatcher, F, types
 from aiogram.filters import Command
 from aiogram.types import LabeledPrice, PreCheckoutQuery
 
-# Railway сам подставит токен из настроек, которые ты укажешь в панели
-TOKEN = os.getenv("8757534074:AAGQRn0nJbK3VtsoFW1PcVNICLhoa3pX9M0")
-
+# ВСТАВЬ СВОЙ ТОКЕН СЮДА В КАВЫЧКАХ
+TOKEN = "8757534074:AAGQRn0nJbK3VtsoFW1PcVNICLhoa3pX9M0" 
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
@@ -17,7 +15,7 @@ async def start_cmd(message: types.Message):
     
     await message.answer(
         "Привет, юный друг! Хочешь получить мануалы? "
-        "Но тогда нужно оплатить, и там оплата будет только 250 звезд навсегда!",
+        "Но тогда нужно оплатить и там оплата будет только 250 звезд навсегда!",
         reply_markup=keyboard
     )
 
@@ -28,7 +26,7 @@ async def send_payment(callback: types.CallbackQuery):
         title="Доступ к мануалам",
         description="Оплата доступа навсегда",
         payload="manuals_access",
-        provider_token="", # Оставляем пустым для Stars
+        provider_token="", # Для Stars ВСЕГДА пусто
         currency="XTR",    # Валюта Stars
         prices=[LabeledPrice(label="Мануалы", amount=250)]
     )
@@ -36,12 +34,13 @@ async def send_payment(callback: types.CallbackQuery):
 
 @dp.pre_checkout_query()
 async def pre_checkout(pre_checkout_query: PreCheckoutQuery):
+    # ОБЯЗАТЕЛЬНОЕ ПОДТВЕРЖДЕНИЕ ПЛАТЕЖА
     await bot.answer_pre_checkout_query(pre_checkout_query.id, ok=True)
 
 @dp.message(F.successful_payment)
 async def got_payment(message: types.Message):
-    # Как ты и просил, бот ничего не пишет после оплаты
-    print(f"ID {message.from_user.id} оплатил 250 звезд.")
+    # Бот ничего не пишет пользователю после оплаты, как ты и просил
+    print(f"Успешная оплата от {message.from_user.id}")
 
 async def main():
     await dp.start_polling(bot)
